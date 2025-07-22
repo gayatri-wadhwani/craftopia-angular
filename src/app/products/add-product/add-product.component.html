@@ -1,0 +1,318 @@
+<div class="add-product-container">
+  <div class="add-product-card">
+    <h2>Add New Product</h2>
+
+    <!-- Upload Method Selection -->
+    <div class="upload-method-selector">
+      <h3>Choose Upload Method:</h3>
+      <div class="method-buttons">
+        <button
+          class="btn method-btn"
+          [class.btn-primary]="uploadMethod === 'single'"
+          [class.btn-outline]="uploadMethod !== 'single'"
+          (click)="setUploadMethod('single')"
+        >
+          Single Product
+        </button>
+        <button
+          class="btn method-btn"
+          [class.btn-primary]="uploadMethod === 'bulk-json'"
+          [class.btn-outline]="uploadMethod !== 'bulk-json'"
+          (click)="setUploadMethod('bulk-json')"
+        >
+          Bulk JSON Upload
+        </button>
+        <button
+          class="btn method-btn"
+          [class.btn-primary]="uploadMethod === 'bulk-csv'"
+          [class.btn-outline]="uploadMethod !== 'bulk-csv'"
+          (click)="setUploadMethod('bulk-csv')"
+        >
+          CSV Upload
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Product Form -->
+    <div *ngIf="uploadMethod === 'single'">
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="image">Product Image: *</label>
+          <input
+            type="file"
+            id="image"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="name">Product Name: *</label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            class="form-control"
+            [class.error]="
+              productForm.get('name')?.invalid &&
+              productForm.get('name')?.touched
+            "
+          />
+          <div
+            class="error-message"
+            *ngIf="
+              productForm.get('name')?.invalid &&
+              productForm.get('name')?.touched
+            "
+          >
+            <span *ngIf="productForm.get('name')?.errors?.['required']"
+              >Product name is required</span
+            >
+            <span *ngIf="productForm.get('name')?.errors?.['minlength']"
+              >Name must be at least 2 characters</span
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description: *</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            class="form-control"
+            rows="4"
+            [class.error]="
+              productForm.get('description')?.invalid &&
+              productForm.get('description')?.touched
+            "
+          ></textarea>
+          <div
+            class="error-message"
+            *ngIf="
+              productForm.get('description')?.invalid &&
+              productForm.get('description')?.touched
+            "
+          >
+            <span *ngIf="productForm.get('description')?.errors?.['required']"
+              >Description is required</span
+            >
+            <span *ngIf="productForm.get('description')?.errors?.['minlength']"
+              >Description must be at least 10 characters</span
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Price (Rs.): *</label>
+            <input
+              type="number"
+              id="price"
+              formControlName="price"
+              step="0.01"
+              min="0.01"
+              class="form-control"
+              [class.error]="
+                productForm.get('price')?.invalid &&
+                productForm.get('price')?.touched
+              "
+            />
+            <div
+              class="error-message"
+              *ngIf="
+                productForm.get('price')?.invalid &&
+                productForm.get('price')?.touched
+              "
+            >
+              <span *ngIf="productForm.get('price')?.errors?.['required']"
+                >Price is required</span
+              >
+              <span *ngIf="productForm.get('price')?.errors?.['min']"
+                >Price must be greater than 0</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category: </label>
+            <select
+              id="category"
+              formControlName="category"
+              class="form-control"
+            >
+              <option value="">Select Category</option>
+              <option *ngFor="let category of categories" [value]="category">
+                {{ category }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tags">Tags (comma-separated):</label>
+          <input
+            type="text"
+            id="tags"
+            formControlName="tags"
+            placeholder="e.g., handmade, ceramic, blue"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="style">Style:</label>
+          <input
+            type="text"
+            id="style"
+            formControlName="style"
+            placeholder="e.g., Modern, Traditional, Vintage"
+            class="form-control"
+          />
+        </div>
+
+        <div class="ai-section">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="useAIAutoFill()"
+            [disabled]="loading"
+          >
+            🤖 AI Auto-Fill
+          </button>
+          <p class="ai-help">
+            Upload an image and set a price, then use AI to auto-fill product
+            details
+          </p>
+        </div>
+
+        <div class="error-message" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-outline"
+            routerLink="/my-products"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="productForm.invalid || !selectedFile || loading"
+          >
+            <span *ngIf="loading">Creating Product...</span>
+            <span *ngIf="!loading">Create Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Bulk JSON Upload -->
+    <div *ngIf="uploadMethod === 'bulk-json'">
+      <div class="bulk-upload-section">
+        <h3>Bulk JSON Upload</h3>
+        <p>
+          Upload multiple products using JSON format. Each product should
+          include name, description, price, category, and imageUrl.
+        </p>
+
+        <div class="form-group">
+          <label>JSON Data:</label>
+          <textarea
+            [(ngModel)]="bulkJsonData"
+            class="form-control bulk-textarea"
+            rows="15"
+            placeholder='[
+  {
+    "name": "Product 1",
+    "description": "Description of product 1",
+    "price": 29.99,
+    "category": "Pottery",
+    "imageUrl": "https://example.com/image1.jpg",
+    "tags": ["handmade", "ceramic"],
+    "style": "Modern"
+  }
+]'
+          ></textarea>
+        </div>
+
+        <div class="error-message" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-outline"
+            routerLink="/my-products"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary"
+            (click)="uploadBulkJSON()"
+            [disabled]="loading || !bulkJsonData"
+          >
+            <span *ngIf="loading">Uploading Products...</span>
+            <span *ngIf="!loading">Upload Products</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CSV Upload -->
+    <div *ngIf="uploadMethod === 'bulk-csv'">
+      <div class="bulk-upload-section">
+        <h3>CSV Upload</h3>
+        <p>
+          Upload products using a CSV file. The CSV should have columns: name,
+          description, price, category, imageUrl, tags, style
+        </p>
+
+        <div class="form-group">
+          <label for="csvFile">Select CSV File:</label>
+          <input
+            type="file"
+            id="csvFile"
+            accept=".csv"
+            (change)="onCSVFileSelected($event)"
+            class="form-control"
+          />
+        </div>
+
+        <div class="csv-sample">
+          <h4>Sample CSV Format:</h4>
+          <pre>
+name,description,price,category,imageUrl,tags,style
+"Ceramic Vase","Beautiful handmade ceramic vase",45.99,"Pottery","https://example.com/vase.jpg","handmade,ceramic","Traditional"</pre
+          >
+        </div>
+
+        <div class="error-message" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-outline"
+            routerLink="/my-products"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary"
+            (click)="uploadCSV()"
+            [disabled]="loading || !selectedCSVFile"
+          >
+            <span *ngIf="loading">Uploading Products...</span>
+            <span *ngIf="!loading">Upload CSV</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

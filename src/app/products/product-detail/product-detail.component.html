@@ -1,0 +1,82 @@
+<div class="product-detail-container">
+  <div class="loading" *ngIf="loading">
+    <p>Loading product details...</p>
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="goBack()">Back to Products</button>
+  </div>
+
+  <div class="product-detail" *ngIf="product && !loading && !error">
+    <div class="product-images">
+      <img [src]="product.imageUrl" [alt]="product.name" onerror="this.src='assets/placeholder.jpg'">
+    </div>
+
+    <div class="product-info">
+      <h1>{{ product.name }}</h1>
+      <p class="product-price">${{ product.price | number:'1.2-2' }}</p>
+      <p class="product-seller">Sold by: {{ product.sellerEmail }}</p>
+      
+      <div class="product-description">
+        <h3>Description</h3>
+        <p>{{ product.description }}</p>
+      </div>
+
+      <div class="product-details">
+        <div class="detail-item">
+          <strong>Category:</strong> {{ product.category }}
+        </div>
+        
+        <div class="detail-item" *ngIf="product.style">
+          <strong>Style:</strong> {{ product.style }}
+        </div>
+        
+        <div class="detail-item" *ngIf="product.tags && product.tags.length > 0">
+          <strong>Tags:</strong>
+          <div class="product-tags">
+            <span class="tag" *ngFor="let tag of product.tags">{{ tag }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="product.originalLanguageText">
+          <strong>Original Text:</strong> {{ product.originalLanguageText }}
+        </div>
+        
+        <div class="detail-item" *ngIf="product.translatedText">
+          <strong>Translation:</strong> {{ product.translatedText }}
+        </div>
+      </div>
+
+      <div class="purchase-section" *ngIf="canAddToCart()">
+        <div class="quantity-selector">
+          <label for="quantity">Quantity:</label>
+          <input 
+            type="number" 
+            id="quantity" 
+            [(ngModel)]="quantity" 
+            min="1" 
+            max="10"
+            class="form-control quantity-input">
+        </div>
+        
+        <button class="btn btn-primary btn-large" (click)="addToCart()">
+          Add to Cart
+        </button>
+      </div>
+
+      <div class="login-prompt" *ngIf="!authService.isAuthenticated()">
+        <p>Please <a routerLink="/auth/login">login</a> to purchase this product</p>
+      </div>
+
+      <div class="seller-only" *ngIf="authService.hasRole('SELLER')">
+        <p>You are viewing as a seller. Only buyers can purchase products.</p>
+      </div>
+
+      <div class="navigation-buttons">
+        <button class="btn btn-outline" (click)="goBack()">Back to Products</button>
+      </div>
+    </div>
+  </div>
+</div>
+

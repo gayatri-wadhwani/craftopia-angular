@@ -1,0 +1,70 @@
+<div class="cart-container">
+  <h2>Shopping Cart</h2>
+
+  <div class="loading" *ngIf="loading">
+    <p>Loading cart...</p>
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadCartItems()">Retry</button>
+  </div>
+
+  <div class="cart-content" *ngIf="!loading && !error">
+    <div class="empty-cart" *ngIf="cartItems.length === 0">
+      <p>Your cart is empty</p>
+      <button class="btn btn-primary" routerLink="/products">Continue Shopping</button>
+    </div>
+
+    <div class="cart-items" *ngIf="cartItems.length > 0">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        <div class="item-image">
+          <img [src]="item.imageUrl" [alt]="item.name" onerror="this.src='assets/placeholder.jpg'">
+        </div>
+        
+        <div class="item-details">
+          <h3>{{ item.name }}</h3>
+          <p class="item-price">Rs.{{ item.price | number:'1.2-2' }}</p>
+          <p class="item-quantity">Quantity: {{ item.quantity }}</p>
+          <p class="item-total">Subtotal: Rs.{{ (item.price * item.quantity) | number:'1.2-2' }}</p>
+        </div>
+        
+        <div class="item-actions">
+          <button class="btn btn-outline btn-sm" (click)="removeItem(item.productId)">
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="total-amount">
+          <h3>Total: Rs.{{ totalAmount | number:'1.2-2' }}</h3>
+        </div>
+        
+        <div class="cart-actions">
+          <button class="btn btn-outline" (click)="clearCart()">Clear Cart</button>
+          <button class="btn btn-secondary" routerLink="/products">Continue Shopping</button>
+          
+          <!-- Payment Options -->
+          <div class="payment-options">
+            <button 
+              class="btn btn-primary btn-large" 
+              (click)="proceedToPayment()"
+              [disabled]="processingPayment || loading">
+              <span *ngIf="processingPayment">Processing Payment...</span>
+              <span *ngIf="!processingPayment">💳 Pay with Razorpay</span>
+            </button>
+            
+            <!-- <button 
+              class="btn btn-outline btn-large" 
+              (click)="placeOrderDirectly()"
+              [disabled]="loading || processingPayment">
+              <span *ngIf="loading">Placing Order...</span>
+              <span *ngIf="!loading">Place Order (No Payment)</span>
+            </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

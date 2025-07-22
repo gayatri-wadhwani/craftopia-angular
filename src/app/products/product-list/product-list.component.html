@@ -1,0 +1,65 @@
+<div class="product-list-container">
+  <div class="filters-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearchChange()" 
+        placeholder="Search products..."
+        class="form-control">
+    </div>
+    
+    <div class="category-filter">
+      <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="form-control">
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Loading products...</p>
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadProducts()">Retry</button>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading && !error">
+    <div class="product-card" *ngFor="let product of filteredProducts">
+      <div class="product-image">
+        <img [src]="product.imageUrl" [alt]="product.name" onerror="this.src='assets/placeholder.jpg'">
+      </div>
+      
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description">{{ product.description | slice:0:100 }}...</p>
+        <p class="product-price">Rs.{{ product.price | number:'1.2-2' }}</p>
+        <p class="product-seller">by {{ product.sellerEmail }}</p>
+        
+        <div class="product-tags" *ngIf="product.tags && product.tags.length > 0">
+          <span class="tag" *ngFor="let tag of product.tags">{{ tag }}</span>
+        </div>
+        
+        <div class="product-actions">
+          <button 
+            class="btn btn-primary" 
+            *ngIf="canAddToCart()"
+            (click)="addToCart(product)">
+            Add to Cart
+          </button>
+          <button 
+            class="btn btn-outline" 
+            [routerLink]="['/products', product.id]">
+            View Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-products" *ngIf="!loading && !error && filteredProducts.length === 0">
+    <p>No products found matching your criteria.</p>
+  </div>
+</div>
+

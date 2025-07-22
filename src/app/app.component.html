@@ -1,0 +1,56 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a routerLink="/home" class="brand-link">
+        <h1>🎨 Craftopia</h1>
+      </a>
+    </div>
+    
+    <div class="nav-menu">
+      <a routerLink="/home" routerLinkActive="active" class="nav-link">Home</a>
+      <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+      
+      <div *ngIf="authService.isAuthenticated()">
+        <!-- Buyer specific links -->
+        <ng-container *ngIf="authService.hasRole('BUYER')">
+          <a routerLink="/cart" routerLinkActive="active" class="nav-link cart-link">
+            🛒 Cart 
+            <span class="cart-count" *ngIf="(cartService.cartCount$ | async) as count; else noCount">{{ count }}</span>
+            <ng-template #noCount><span class="cart-count">0</span></ng-template>
+          </a>
+          <a routerLink="/orders" routerLinkActive="active" class="nav-link">My Orders</a>
+        </ng-container>
+        
+        <!-- Seller specific links -->
+        <ng-container *ngIf="authService.hasRole('SELLER')">
+          <a routerLink="/my-products" routerLinkActive="active" class="nav-link">My Products</a>
+          <a routerLink="/add-product" routerLinkActive="active" class="nav-link">Add Product</a>
+        </ng-container>
+        
+        <!-- Admin specific links -->
+        <ng-container *ngIf="authService.hasRole('ADMIN')">
+          <a routerLink="/admin/orders" routerLinkActive="active" class="nav-link">All Orders</a>
+        </ng-container>
+        
+        <button class="btn btn-outline" (click)="logout()">Logout</button>
+      </div>
+      
+      <div *ngIf="!authService.isAuthenticated()" class="auth-links">
+        <a routerLink="/auth/login" routerLinkActive="active" class="nav-link">Login</a>
+        <a routerLink="/auth/register" routerLinkActive="active" class="nav-link">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <p>&copy; 2024 Craftopia. All rights reserved.</p>
+    <p>Connecting artisans with art lovers worldwide</p>
+  </div>
+</footer>
+

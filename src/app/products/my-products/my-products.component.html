@@ -1,0 +1,48 @@
+<div class="my-products-container">
+  <div class="header-section">
+    <h2>My Products</h2>
+    <button class="btn btn-primary" (click)="addNewProduct()">Add New Product</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Loading your products...</p>
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadMyProducts()">Retry</button>
+  </div>
+
+  <div class="products-content" *ngIf="!loading && !error">
+    <div class="no-products" *ngIf="products.length === 0">
+      <p>You haven't added any products yet.</p>
+      <button class="btn btn-primary" (click)="addNewProduct()">Add Your First Product</button>
+    </div>
+
+    <div class="products-grid" *ngIf="products.length > 0">
+      <div class="product-card" *ngFor="let product of products">
+        <div class="product-image">
+          <img [src]="product.imageUrl" [alt]="product.name" onerror="this.src='assets/placeholder.jpg'">
+        </div>
+        
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-description">{{ product.description | slice:0:100 }}...</p>
+          <p class="product-price">${{ product.price | number:'1.2-2' }}</p>
+          <p class="product-category">Category: {{ product.category }}</p>
+          
+          <div class="product-tags" *ngIf="product.tags && product.tags.length > 0">
+            <span class="tag" *ngFor="let tag of product.tags">{{ tag }}</span>
+          </div>
+          
+          <div class="product-actions">
+            <button class="btn btn-outline btn-sm" (click)="editProduct(product.id)">Edit</button>
+            <button class="btn btn-outline btn-sm btn-danger" (click)="deleteProduct(product.id)">Delete</button>
+            <button class="btn btn-primary btn-sm" [routerLink]="['/products', product.id]">View</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
